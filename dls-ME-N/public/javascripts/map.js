@@ -9,7 +9,8 @@ $.ajax({
     success: function(res) {
         console.log(res);
         res.bicicletas.forEach( function(bici){
-            L.marker(bici.ubicacion, {title: bici.id}).addTo(mymap);
+            L.marker(bici.ubicacion, {title: bici.code}).addTo(mymap);
         })
     }
 })
+//-34.6012424, -58.3861497

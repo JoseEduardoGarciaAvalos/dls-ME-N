@@ -9,9 +9,9 @@ block content
   br
   br
 
-  form(action="/bicicletas/" + bici.id + "/update" method="post")
-    label(for="id") ID:
-    input#id(type="text" name="id" value=bici.id)
+  form(action="/bicicletas/" + bici.code + "/update" method="post")
+    label(for="code") Code:
+    input#id(type="text" name="code" value=bici.code)
     br
     label(for="color") Color:
     input#color(type="text" name="color" value=bici.color)
