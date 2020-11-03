@@ -1,9 +1,17 @@
-//var server = require('../../bin/www');
+var Bicicleta = require('../../models/bicicleta');
+var server = require('../../bin/www');
 var request = require('request');
 
 var base_url = 'http://localhost:3000/api/bicicletas';
 
 describe('Bicicleta API', () => {
+
+    beforeAll((done) => {
+        Bicicleta.deleteMany({}, function (err, success) {
+          if (err) console.log(err);
+          done();
+        });
+    });
 
     describe('GET BICICLETAS /', () => {
         it('Status 200 - Coleccion vacia', (done) => {
