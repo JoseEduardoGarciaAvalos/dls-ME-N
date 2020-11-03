@@ -1,0 +1,33 @@
+extends ../layout
+
+block content
+  a(href="/bicicletas/create") Formulario
+  br
+  br
+  br
+  h1 Lsita de Bicicletas
+  br
+  br
+  table.table
+    thead
+      tr
+        th #
+        th Color
+        th Modelo
+        th Ubicacion
+        th 
+        th
+      tbody
+        each bici in bicis
+          tr
+            td= bici.id
+            td= bici.color
+            td= bici.modelo
+            td= bici.ubicacion
+            td
+              a(href="/bicicletas/" + bici.id + "/update") Editar
+            td
+              form(method="post" action="/bicicletas/" + bici.id + "/delete" )
+                input(type="hidden" name="id" value=bici.id)
+                button(type="submit")
+                  = 'Eliminar'
