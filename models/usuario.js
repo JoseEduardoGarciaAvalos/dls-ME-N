@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var uniqueValidator = require('mongoose-unique-validator');
 var Reserva = require('./reserva');
 var Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
@@ -35,6 +36,8 @@ var usuarioSchema = new Schema({
     default: false
   },
 });
+
+usuarioSchema.plugin(uniqueValidator, { message: 'el {PATH} ya existe con otro usuario.' });
 
 usuarioSchema.pre('save', function (next) {
   if (this.isModified('password')) {
