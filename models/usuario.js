@@ -2,8 +2,12 @@ var mongoose = require('mongoose');
 var uniqueValidator = require('mongoose-unique-validator');
 var Reserva = require('./reserva');
 var Schema = mongoose.Schema;
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+
+const Token = require('../models/token');
+const mailer = require('../mailer/mailer');
 
 function validateEmail(email) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -56,5 +60,23 @@ usuarioSchema.methods.reservar = function (biciId, desde, hasta, cb) {
   reserva.save(cb);
 }
 
+usuarioSchema.methods.enviar_email_bienvenida = function (cb) {
+  const token = new Token({ _userID: this.id, token: crypto.randomBytes(16).toString('hex') });
+  const email_destination = this.email;
+  token.save(function (err) {
+    if (err) { return console.log(err.message); }
+
+    const mailOptions = {
+      from: 'no-reply@redbicicletas.com',
+      to: email_destination,
+      subject: 'Verificación de cuenta',
+      text: 'Hola,\n\n' + 'Por favor para verificar su cuenta haga click en el siguiente link: \n' + 'http://localhost:3000' + '\/token/confirmation\/' + token.token + '\n'
+    };
+    mailer.sendMail(mailOptions, function (err) {
+      if (err) { return console.log(err.message); }
+      console.log('Se ha enviado un emial de bienvenida a:' + email_destination);
+    });
+  });
+}
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
