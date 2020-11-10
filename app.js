@@ -114,7 +114,7 @@ app.post('/resetPassword', function (req, res) {
 app.use('/usuarios', usuariosRouter);
 app.use('/token', tokenRouter);
 
-app.use('/bicicletas', bicicletasRouter);
+app.use('/bicicletas', loggedIn, bicicletasRouter);
 app.use('/api/bicicletas', bicicletasAPIRouter);
 app.use('/api/usuarios', usuariosAPIRouter);
 
@@ -135,5 +135,16 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+function loggedIn(req, res, next) {
+  if (req.user) {
+    console.log('Usuario ', req.user);
+    next();
+  } else {
+    console.log('Usuario sin logearse');
+    res.redirect('/login');
+  }
+}
+
 
 module.exports = app;
