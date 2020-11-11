@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const passport = require('./config/passport');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 const jwt = require('jsonwebtoken');
 
 var indexRouter = require('./routes/index');
@@ -19,7 +20,19 @@ var authAPIRouter = require('./routes/api/auth');
 const Usuario = require('./models/usuario');
 const Token = require('./models/token');
 
-const store = new session.MemoryStore;
+let store;
+if (process.env.NODE_ENV === 'development') {
+  store = new session.MemoryStore;
+} else {
+  store = new MongoDBStore({
+    uri: process.env.MONGO_URI,
+    collection: 'sessions'
+  });
+  store.on('error', function (error) {
+    assert.ifError(error);
+    assert.ok(false);
+  });
+}
 
 var app = express();
 
@@ -35,7 +48,7 @@ app.use(session({
 
 var mongoose = require('mongoose');
 // var mongoDB = 'mongodb://localhost/red_bicicletas';
-var mongoDB = process.env.MONGO_URI; 
+var mongoDB = process.env.MONGO_URI;
 mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true });
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
@@ -126,6 +139,33 @@ app.use('/bicicletas', loggedIn, bicicletasRouter);
 app.use('/api/auth', authAPIRouter);
 app.use('/api/bicicletas', validarUsuario, bicicletasAPIRouter);
 app.use('/api/usuarios', usuariosAPIRouter);
+
+app.use('/privacy_policy', function (req, res) {
+  res.sendFile('public/privacy_policy.html');
+});
+
+app.use('/googlef7f606a24db84bde', function (req, res) {
+  res.sendFile('public/googlef7f606a24db84bde.html');
+});
+
+app.get('/auth/google',
+  passport.authenticate('google', {
+    scope: [
+      'https://www.googleapis.com/auth/plus.login',
+      'https://www.googleapis.com/auth/plus.profile.emails.read',
+      'profile',
+      'email',
+    ]
+  })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google',
+    { failureRedirect: '/error' }),
+  function (req, res) {
+    res.redirect('/');
+  }
+);
 
 app.use('/', indexRouter);
 
